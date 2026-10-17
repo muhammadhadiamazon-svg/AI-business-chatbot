@@ -1,37 +1,51 @@
 import streamlit as st
 from google import genai
 
-# Page Title
+# Page Config
 st.set_page_config(page_title="AI Business Assistant", page_icon="🤖")
 st.title("🤖 AI Business Assistant Chatbot")
 st.write("Welcome! Ask me anything about our services.")
 
-# Embedded API Key
-API_KEY = "AQ.Ab8RN6L3C20x4vpCcozGFpSYazja6f4DMkX5shCF9F4wavdPSw"
-client = genai.Client(api_key=API_KEY)
+# Get API key from Streamlit Secrets or Sidebar
+api_key = None
 
-# Chat history initialize karna
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# Check Streamlit Secrets (for cloud deployment)
+if "GEMINI_API_KEY" in st.secrets:
+    api_key = st.secrets["GEMINI_API_KEY"]
+else:
+    # Sidebar fallback (for local testing)
+    api_key = st.sidebar.text_input("Apni Gemini API Key Yahan Paste Karein", type="password")
 
-# Chat history dikhana
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+if api_key:
+    try:
+        client = genai.Client(api_key=api_key)
 
-# User input bar
-if prompt := st.chat_input("Type your message here..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+        # Chat history
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
 
-    # AI response generate karna
-    with st.chat_message("assistant"):
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=prompt,
-        )
-        reply = response.text
-        st.markdown(reply)
-        
-    st.session_state.messages.append({"role": "assistant", "content": reply})
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+        # User input bar
+        if prompt := st.chat_input("Type your message here..."):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            # AI response
+            with st.chat_message("assistant"):
+                response = client.models.generate_content(
+                    model="gemini-3.8-flash",
+                    contents=prompt,
+                )
+                reply = response.text
+                st.markdown(reply)
+                
+            st.session_state.messages.append({"role": "assistant", "content": reply})
+
+    except Exception as e:
+        st.error(f"Error: {e}")
+else:
+    st.info("👈 Chatbot chalane ke liye left sidebar mein apni Gemini API key daalein.")
