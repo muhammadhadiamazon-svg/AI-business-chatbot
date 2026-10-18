@@ -108,10 +108,10 @@ try:
             }
             contents.append(file_part)
 
-        # AI Response with Super Fast Streaming
+        # AI Response with Streaming using recommended model
         with st.chat_message("assistant"):
             response = client.models.generate_content_stream(
-                model="gemini-2.5-flash",
+                model="gemini-3.8-flash",
                 contents=contents,
             )
             reply = st.write_stream(chunk.text for chunk in response)
