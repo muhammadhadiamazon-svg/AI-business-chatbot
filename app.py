@@ -83,15 +83,15 @@ with st.sidebar:
     st.subheader("🤖 Choose AI Model")
     selected_model_name = st.selectbox(
         "Select Model Quality:",
-        ["Gemini 2.5 Flash (Fast)", "Gemini 2.5 Pro (Deep Reasoning)"],
+        ["Gemini Flash (Fast)", "Gemini Pro (Deep Reasoning)"],
         index=0
     )
     
-    # Map selection to actual Gemini models
+    # Map selection to actual working Gemini models
     if "Pro" in selected_model_name:
-        model_id = "gemini-2.5-pro"
+        model_id = "gemini-1.5-pro"
     else:
-        model_id = "gemini-2.5-flash"
+        model_id = "gemini-1.5-flash"
         
     st.divider()
     
