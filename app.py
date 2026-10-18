@@ -116,7 +116,7 @@ with st.sidebar:
 
 # --- MAIN APP LAYOUT ---
 st.markdown('<p class="main-title">💼 AI Business Assistant Pro Max</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Smart Multi-Persona Chatbot with Live Web Search & PDF Analysis</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Smart Multi-Persona Chatbot with Visual & PDF Analysis</p>', unsafe_allow_html=True)
 
 # Helper function to read PDF text
 def read_pdf(file):
@@ -143,7 +143,7 @@ try:
             st.markdown(message["content"])
 
     # User Input
-    if prompt := st.chat_input("Ask anything, search the web, or analyze your file..."):
+    if prompt := st.chat_input("Ask anything or analyze your file..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user", avatar="👤"):
             st.markdown(prompt)
@@ -166,7 +166,7 @@ try:
                 else:
                     extracted_text = file_bytes.decode("utf-8")
                 
-                context_prompt = f"\n\n--- Attached Document Context ------\n{extracted_text}\n--- End of Document ---"
+                context_prompt = f"\n\n--- Attached Document Context ---\n{extracted_text}\n--- End of Document ---"
                 contents[0] = full_prompt + context_prompt
                 
             # If Image File
@@ -179,14 +179,11 @@ try:
                 }
                 contents.append(file_part)
 
-        # AI Response Generation with Live Google Search Grounding & Streaming
+        # AI Response Generation with Streaming
         with st.chat_message("assistant", avatar="🤖"):
             response = client.models.generate_content_stream(
                 model="gemini-3.8-flash",
                 contents=contents,
-                config={
-                    "tools": [{"google_search": {}}]
-                }
             )
             reply = st.write_stream(chunk.text for chunk in response)
             
