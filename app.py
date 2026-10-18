@@ -4,7 +4,7 @@ import pypdf
 
 # Page Configuration
 st.set_page_config(
-    page_title="AI Business Assistant Pro",
+    page_title="AI Business Assistant Pro Max",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -77,19 +77,20 @@ if "messages" not in st.session_state:
 
 # --- SIDEBAR CONTROL PANEL ---
 with st.sidebar:
-    st.title("⚙️ Control Panel")
+    st.title("⚙️ Pro Control Panel")
     
-    # 1. Multi-Model Support Dropdown
-    st.subheader("🤖 Choose AI Model")
-    selected_model_name = st.selectbox(
-        "Select Model Quality:",
-        ["Gemini 3.8 Flash (Recommended)", "Gemini 3.8 Flash (Fast)"],
-        index=0
+    # 1. AI Persona / Role Selector
+    st.subheader("🎭 AI Expert Mode")
+    persona = st.selectbox(
+        "Select Assistant Persona:",
+        [
+            "General Business Assistant",
+            "Marketing & Ads Guru",
+            "Financial & Budget Advisor",
+            "Code & Tech Developer"
+        ]
     )
     
-    # Map selection to working Gemini model
-    model_id = "gemini-3.8-flash"
-        
     st.divider()
     
     # 2. Clear Chat History Button
@@ -98,12 +99,24 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
+    st.divider()
+
+    # 3. Export Chat History Button
+    st.subheader("📥 Export Chat")
+    chat_text = "\n".join([f"{m['role'].upper()}: {m['content']}" for m in st.session_state.messages])
+    st.download_button(
+        label="💾 Download Chat as TXT",
+        data=chat_text,
+        file_name="ai_chat_history.txt",
+        mime="text/plain"
+    )
+
     st.markdown("---")
     st.caption("⚡ Powered by Google Gemini AI")
 
 # --- MAIN APP LAYOUT ---
-st.markdown('<p class="main-title">💼 AI Business Assistant Pro</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Smart Multi-Model Chatbot with Visual & PDF Deep Analysis</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-title">💼 AI Business Assistant Pro Max</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Smart Multi-Persona Chatbot with Live Web Search & PDF Analysis</p>', unsafe_allow_html=True)
 
 # Helper function to read PDF text
 def read_pdf(file):
@@ -130,13 +143,17 @@ try:
             st.markdown(message["content"])
 
     # User Input
-    if prompt := st.chat_input("Ask anything or analyze your file..."):
+    if prompt := st.chat_input("Ask anything, search the web, or analyze your file..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user", avatar="👤"):
             st.markdown(prompt)
 
+        # Apply Persona Context Prefix
+        persona_prefix = f"[System Instruction: Act as an expert {persona}]. "
+        full_prompt = persona_prefix + prompt
+
         # Prepare Content Payload
-        contents = [prompt]
+        contents = [full_prompt]
         
         if uploaded_file is not None:
             file_type = uploaded_file.type
@@ -149,8 +166,8 @@ try:
                 else:
                     extracted_text = file_bytes.decode("utf-8")
                 
-                context_prompt = f"\n\n--- Attached Document Context ---\n{extracted_text}\n--- End of Document ---"
-                contents[0] = prompt + context_prompt
+                context_prompt = f"\n\n--- Attached Document Context ------\n{extracted_text}\n--- End of Document ---"
+                contents[0] = full_prompt + context_prompt
                 
             # If Image File
             elif "image" in file_type:
@@ -162,11 +179,14 @@ try:
                 }
                 contents.append(file_part)
 
-        # AI Response Generation
+        # AI Response Generation with Live Google Search Grounding & Streaming
         with st.chat_message("assistant", avatar="🤖"):
             response = client.models.generate_content_stream(
-                model=model_id,
+                model="gemini-3.8-flash",
                 contents=contents,
+                config={
+                    "tools": [{"google_search": {}}]
+                }
             )
             reply = st.write_stream(chunk.text for chunk in response)
             
