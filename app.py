@@ -4,30 +4,39 @@ from google import genai
 # Page Config
 st.set_page_config(page_title="AI Business Assistant", page_icon="💼", layout="centered")
 
-# Custom CSS Styling
+# Custom CSS Styling (Aesthetic Gradient Look)
 st.markdown("""
     <style>
+    /* Cool & Aesthetic Dark Gradient Background */
     .stApp {
-        background-color: #0e1117;
-        color: #ffffff;
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%);
+        color: #f8fafc;
     }
+    
+    /* Main Header Styling */
     .main-header {
-        font-size: 28px;
-        font-weight: 700;
-        color: #00adb5;
+        font-size: 32px;
+        font-weight: 800;
+        color: #38bdf8;
         text-align: center;
         margin-bottom: 0px;
+        text-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
     }
+    
     .sub-header {
         font-size: 16px;
-        color: #eeeeee;
+        color: #94a3b8;
         text-align: center;
         margin-bottom: 25px;
     }
+
+    /* Modern Chat Bubble Styling */
     .stChatMessage {
-        border-radius: 12px;
-        padding: 10px;
-        margin-bottom: 10px;
+        border-radius: 16px;
+        padding: 12px;
+        margin-bottom: 12px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
     </style>
 """, unsafe_allow_html=True)
