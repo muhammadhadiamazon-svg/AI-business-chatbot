@@ -89,9 +89,9 @@ with st.sidebar:
     
     # Map selection to actual working Gemini models
     if "Pro" in selected_model_name:
-        model_id = "gemini-1.5-pro"
+        model_id = "gemini-2.5-pro"
     else:
-        model_id = "gemini-1.5-flash"
+        model_id = "gemini-2.5-flash"
         
     st.divider()
     
